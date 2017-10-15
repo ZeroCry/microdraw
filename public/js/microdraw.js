@@ -2204,40 +2204,16 @@ var Microdraw = (function () {
             me.selectedTool = "navigate";
             me.selectTool();
 
-            // decide between json (local) and jsonp (cross-origin)
-            var ext = me.params.source.split(".");
-            ext = ext[ext.length - 1];
-            if( ext === "jsonp" ) {
-                if( me.debug ) {
-                    console.log("Reading cross-origin jsonp file");
-                }
-                $.ajax({
-                    type: 'GET',
-                    url: me.params.source + "?callback=?",
-                    jsonpCallback: 'f',
-                    dataType: 'jsonp',
-                    contentType: "application/json",
-                    success: function(obj) {
-                        me.initMicrodraw2(obj);
-                        def.resolve();
-                    }
-                });
-            } else
-            if( ext === "json" ) {
-                if( me.debug ) {
-                    console.log("Reading local json file");
-                }
-                $.ajax({
-                    type: 'GET',
-                    url: me.params.source,
-                    dataType: "json",
-                    contentType: "application/json",
-                    success: function(obj) {
-                        me.initMicrodraw2(obj);
-                        def.resolve();
-                    }
-                });
-            }
+            //fetch json
+            console.log('fetchJson')
+            fetch('/getJson?source='+me.params.source)
+                .then(data=>data.json())
+                .then(json=>{
+                    console.log('getjson success',json)
+                    me.initMicrodraw2(json);
+                    def.resolve();
+                })
+                .catch(e=>console.log(e));
 
             // Change current slice by typing in the slice number and pessing the enter key
             $("#slice-name").keyup(me.sliceNameOnEnter);
